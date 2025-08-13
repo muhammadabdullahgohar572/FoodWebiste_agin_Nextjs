@@ -20,17 +20,17 @@ const Restaurant = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
-      
+
       <main className="flex-grow w-full py-12">
         <div className="w-full px-4 mx-auto max-w-4xl">
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
             className="w-full"
           >
             {/* Header Section with Proper Spacing */}
-            <motion.div 
+            <motion.div
               className="bg-[#10B981] p-8 text-center rounded-t-2xl"
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -40,10 +40,12 @@ const Restaurant = () => {
                 {login ? "Welcome Back!" : "Join Our Community"}
               </h1>
               <p className="text-emerald-100 text-lg">
-                {login ? "Sign in to continue your culinary journey" : "Create your account to get started"}
+                {login
+                  ? "Sign in to continue your culinary journey"
+                  : "Create your account to get started"}
               </p>
             </motion.div>
-            
+
             {/* Content Area with Consistent Padding */}
             <div className="bg-white p-8 w-full space-y-6">
               <AnimatePresence mode="wait">
@@ -52,9 +54,9 @@ const Restaurant = () => {
                   initial={{ opacity: 0, x: login ? 30 : -30 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: login ? -30 : 30 }}
-                  transition={{ 
+                  transition={{
                     duration: 0.3,
-                    ease: [0.2, 0.8, 0.2, 1]
+                    ease: [0.2, 0.8, 0.2, 1],
                   }}
                   className="w-full"
                 >
@@ -62,7 +64,7 @@ const Restaurant = () => {
                 </motion.div>
               </AnimatePresence>
             </div>
-            
+
             {/* Toggle Buttons with Proper Spacing */}
             <div className="flex border-t border-gray-200 w-full bg-gray-50">
               <motion.button
@@ -108,7 +110,7 @@ const Restaurant = () => {
           </motion.div>
 
           {/* Bottom Link with Proper Margin */}
-          <motion.div 
+          <motion.div
             className="mt-8 text-center text-gray-600 w-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -116,7 +118,7 @@ const Restaurant = () => {
           >
             <p className="text-lg">
               {login ? "New to RestoFinder?" : "Already have an account?"}{" "}
-              <button 
+              <button
                 onClick={() => handleToggle(!login)}
                 className="font-semibold text-[#10B981] hover:underline hover:text-emerald-700 transition-colors"
               >

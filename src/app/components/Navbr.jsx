@@ -1,7 +1,7 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaBars,
   FaTimes,
@@ -12,15 +12,50 @@ import {
   FaPhone,
 } from "react-icons/fa";
 import { theme } from "./theme";
+import { useParams, useRouter, usePathname } from "next/navigation";
 
 const Navbar = () => {
+  const [details, setDetails] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const dataCheck = localStorage.getItem("restaurantuser");
+      
+      if (!dataCheck) {
+        
+        if (!pathname.startsWith('/retaurants')) {
+          router.push("/retaurants");
+        }
+      } else {
+        const userData = JSON.parse(dataCheck);
+        setDetails(userData);
+        // If user is logged in and on the base restaurants page, redirect to dashboard
+        if (pathname === '/retaurants') {
+          router.push("../retaurants/Dashbored");
+
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [pathname, router]);
+
+  const logout = () => {
+    localStorage.removeItem("restaurantuser");
+    setDetails(null);
+    router.push("/restaurants");
+  };
 
   const navLinks = [
     { name: "Home", href: "/", icon: <FaHome /> },
     { name: "Restaurants", href: "/restaurants", icon: <FaUtensils /> },
-    { name: "About", href: "../About", icon: <FaInfoCircle /> },
-    { name: "Contact", href: "../Contact", icon: <FaPhone /> },
+    { name: "About", href: "/about", icon: <FaInfoCircle /> },
+    { name: "Contact", href: "/contact", icon: <FaPhone /> },
   ];
 
   const mobileMenuVariants = {
@@ -59,6 +94,14 @@ const Navbar = () => {
     },
   };
 
+  if (isLoading) {
+    return (
+      <div className="bg-white shadow-md py-4 px-6 fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-center">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
@@ -93,7 +136,7 @@ const Navbar = () => {
             >
               <Link
                 href={link.href}
-                className="flex items-center text-gray-700 hover:text-indigo-600 transition-colors"
+                className={`flex items-center ${pathname === link.href ? 'text-indigo-600 font-medium' : 'text-gray-700 hover:text-indigo-600'} transition-colors`}
               >
                 <span className="mr-2">{link.icon}</span>
                 {link.name}
@@ -102,25 +145,52 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Auth Buttons */}
+        {/* Auth Buttons - Conditional */}
         <div className="hidden md:flex space-x-4">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-4 py-2 rounded-lg"
-          >
-            <Link href="/login" className="text-gray-700 hover:text-indigo-600">
-              Login
-            </Link>
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-4 py-2 rounded-lg text-white"
-            style={{ backgroundColor: theme.colors.primary }}
-          >
-            <Link href="/signup">Sign Up</Link>
-          </motion.button>
+          {details ? (
+            <>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 rounded-lg border border-gray-300"
+                onClick={() => router.push("/profile")}
+              >
+                <FaUser className="inline mr-2" /> Profile
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 rounded-lg text-white"
+                style={{ backgroundColor: theme.colors.primary }}
+                onClick={logout}
+              >
+                Logout
+              </motion.button>
+            </>
+          ) : (
+            <>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 rounded-lg"
+              >
+                <Link
+                  href="/login"
+                  className="text-gray-700 hover:text-indigo-600"
+                >
+                  Login
+                </Link>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 rounded-lg text-white"
+                style={{ backgroundColor: theme.colors.primary }}
+              >
+                <Link href="/signup">Sign Up</Link>
+              </motion.button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -155,7 +225,7 @@ const Navbar = () => {
                 >
                   <Link
                     href={link.href}
-                    className="flex items-center text-gray-700 py-2 px-4 hover:bg-gray-100 rounded-lg"
+                    className={`flex items-center py-2 px-4 ${pathname === link.href ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-100'} rounded-lg`}
                     onClick={() => setIsOpen(false)}
                   >
                     <span className="mr-3">{link.icon}</span>
@@ -168,34 +238,63 @@ const Navbar = () => {
                 className="pt-4 border-t border-gray-200"
               >
                 <div className="flex space-x-4">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-4 py-2 rounded-lg flex-1 border"
-                    style={{ borderColor: theme.colors.primary }}
-                  >
-                    <Link
-                      href="/login"
-                      className="block"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Login
-                    </Link>
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-4 py-2 rounded-lg text-white flex-1"
-                    style={{ backgroundColor: theme.colors.primary }}
-                  >
-                    <Link
-                      href="/signup"
-                      className="block"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Sign Up
-                    </Link>
-                  </motion.button>
+                  {details ? (
+                    <>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="px-4 py-2 rounded-lg flex-1 border"
+                        onClick={() => {
+                          router.push("/profile");
+                          setIsOpen(false);
+                        }}
+                      >
+                        Profile
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="px-4 py-2 rounded-lg text-white flex-1"
+                        style={{ backgroundColor: theme.colors.primary }}
+                        onClick={() => {
+                          logout();
+                          setIsOpen(false);
+                        }}
+                      >
+                        Logout
+                      </motion.button>
+                    </>
+                  ) : (
+                    <>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="px-4 py-2 rounded-lg flex-1 border"
+                      >
+                        <Link
+                          href="/login"
+                          className="block"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Login
+                        </Link>
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="px-4 py-2 rounded-lg text-white flex-1"
+                        style={{ backgroundColor: theme.colors.primary }}
+                      >
+                        <Link
+                          href="/signup"
+                          className="block"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Sign Up
+                        </Link>
+                      </motion.button>
+                    </>
+                  )}
                 </div>
               </motion.li>
             </motion.ul>

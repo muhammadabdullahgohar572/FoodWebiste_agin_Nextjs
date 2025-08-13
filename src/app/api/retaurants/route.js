@@ -57,6 +57,9 @@ export const POST = async (req) => {
           id: savedRestaurant._id,
           restaurantName: savedRestaurant.restaurantName,
           email: savedRestaurant.email,
+          city: savedRestaurant.city,
+          address: savedRestaurant.address,
+          contactNo: savedRestaurant.contactNo,
         },
       },
       { status: 201 }

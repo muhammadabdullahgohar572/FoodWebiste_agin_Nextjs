@@ -1,23 +1,62 @@
-"use client"
+"use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 import { FaEnvelope, FaLock, FaArrowRight } from "react-icons/fa";
 import { theme } from "./theme";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    // Simulate login
-    setTimeout(() => {
-      console.log("Logged in with:", { email, password });
-      setIsLoading(false);
-    }, 1500);
+    try {
+      setIsLoading(true);
+
+      const Datagetandsave = await fetch(
+        "http://localhost:3000/api/retaurants/Login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      const respose = await Datagetandsave.json();
+
+      console.log(respose);
+
+      if (Datagetandsave.status === 200) {
+        localStorage.setItem("restaurantuser", JSON.stringify(respose));
+        router.push("../retaurants/Dashbored");
+        toast.success("Login Successful");
+      } else {
+        toast.error(respose.error || "Something went wrong");
+      }
+
+      setTimeout(() => {
+        console.log("Logged in with:", { email, password });
+        setIsLoading(false);
+      }, 1500);
+    } catch (error) {
+      toast.error(error.message, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
   };
 
   // Animation variants
@@ -26,18 +65,18 @@ const LoginPage = () => {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const item = {
     hidden: { y: 20, opacity: 0 },
-    show: { y: 0, opacity: 1 }
+    show: { y: 0, opacity: 1 },
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen flex items-center justify-center p-4"
       style={{ background: theme.gradients.login }}
     >
@@ -49,7 +88,10 @@ const LoginPage = () => {
       >
         {/* Header */}
         <motion.div variants={item} className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2" style={{ color: theme.colors.primary }}>
+          <h1
+            className="text-3xl font-bold mb-2"
+            style={{ color: theme.colors.primary }}
+          >
             Welcome Back
           </h1>
           <p className="text-gray-500">Sign in to your account</p>
@@ -59,7 +101,10 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email Field */}
           <motion.div variants={item} className="space-y-2">
-            <label className="block text-sm font-medium" style={{ color: theme.colors.text }}>
+            <label
+              className="block text-sm font-medium"
+              style={{ color: theme.colors.text }}
+            >
               Email
             </label>
             <div className="relative">
@@ -77,7 +122,10 @@ const LoginPage = () => {
 
           {/* Password Field */}
           <motion.div variants={item} className="space-y-2">
-            <label className="block text-sm font-medium" style={{ color: theme.colors.text }}>
+            <label
+              className="block text-sm font-medium"
+              style={{ color: theme.colors.text }}
+            >
               Password
             </label>
             <div className="relative">
@@ -124,8 +172,8 @@ const LoginPage = () => {
         <motion.div variants={item} className="mt-6 text-center">
           <p className="text-sm text-gray-500">
             Don't have an account?{" "}
-            <Link 
-              href="/signup" 
+            <Link
+              href="/signup"
               className="font-medium hover:underline"
               style={{ color: theme.colors.primary }}
             >
@@ -134,6 +182,7 @@ const LoginPage = () => {
           </p>
         </motion.div>
       </motion.div>
+      <ToastContainer />
     </div>
   );
 };

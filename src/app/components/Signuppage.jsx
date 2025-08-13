@@ -78,10 +78,9 @@ const SignupPage = () => {
     setIsLoading(true);
 
     try {
-      // Show loading toast
       const loadingToastId = toast.loading("Creating your account...");
 
-      const response = await fetch("http://localhost:3000/api/retaurants", {
+      const response = await fetch("/api/restaurants", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,13 +96,16 @@ const SignupPage = () => {
       });
 
       const result = await response.json();
-   
+      
       toast.dismiss(loadingToastId);
 
       if (!response.ok) {
-        throw new Error(result.message || "Registration failed");
+        throw new Error(result.error || "Registration failed");
       }
 
+      // Store user data in localStorage
+      localStorage.setItem("restaurantuser", JSON.stringify(result.user));
+      
       toast.success("🎉 Registration successful! Redirecting to dashboard...", {
         position: "top-center",
         autoClose: 2000,
@@ -112,29 +114,15 @@ const SignupPage = () => {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
       });
 
+      // Redirect to dashboard after successful signup
       setTimeout(() => {
-        router.push("/");
-      }, 2500);
+        router.push("/restaurants/dashboard");
+      }, 2000);
     } catch (error) {
       console.error("Registration error:", error);
-
-      // Provide more specific error messages based on the error
-      let errorMessage = "❌ Registration failed. Please try again.";
-
-      if (error.message.includes("Failed to connect to database")) {
-        errorMessage =
-          "❌ Unable to connect to the database. Please check your internet connection and try again.";
-      } else if (error.message.includes("already exists")) {
-        errorMessage =
-          "❌ A restaurant with this email already exists. Please use a different email.";
-      } else if (error.message) {
-        errorMessage = `❌ ${error.message}`;
-      }
-
-      toast.error(errorMessage, {
+      toast.error(error.message || "Registration failed. Please try again.", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -142,7 +130,6 @@ const SignupPage = () => {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
       });
     } finally {
       setIsLoading(false);
