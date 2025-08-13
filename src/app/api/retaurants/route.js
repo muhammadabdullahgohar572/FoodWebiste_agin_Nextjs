@@ -1,38 +1,44 @@
-import { ConnectDb } from "@/app/lib/Db";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { restaurantsmodels } from "@/app/lib/restaurantsModel";
+import Restaurant from "@/app/lib/restaurantsModel";
+import { ConnectionDb } from "@/app/lib/Db";
 
-export const POST = async (req, res) => {
+export const POST = async (req) => {
   try {
-    // Ensure database is connected before proceeding
-    await ConnectDb();
+    await ConnectionDb();
 
-    const { restaurantName, email, password, city, address, contactNo } = await req.json();
+    const body = await req.json();
+    const { 
+      email, 
+      password, 
+      restaurantName, 
+      city, 
+      address, 
+      contactNo 
+    } = body;
 
-    // Validation
-    if (!restaurantName || !email || !password || !city || !address || !contactNo) {
+    if (!email || !password || !restaurantName || !city || !address || !contactNo) {
       return NextResponse.json(
-        { message: "All fields are required" },
+        { error: "All fields are required" },
         { status: 400 }
       );
     }
 
-    // Check if restaurant already exists
-    const existingRestaurant = await restaurantsmodels.findOne({ email });
+    // Check if email exists
+    const existingRestaurant = await Restaurant.findOne({ email });
     if (existingRestaurant) {
       return NextResponse.json(
-        { message: "Restaurant already exists with this email" },
-        { status: 409 }
+        { error: "Email already registered" },
+        { status: 400 }
       );
     }
 
-    // Rest of your code remains the same...
+    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newRestaurant = new restaurantsmodels({
+    // Create new restaurant
+    const newRestaurant = new Restaurant({
       restaurantName,
       email,
       password: hashedPassword,
@@ -41,30 +47,24 @@ export const POST = async (req, res) => {
       contactNo,
     });
 
+    // Save to database
     const savedRestaurant = await newRestaurant.save();
 
-    const token = jwt.sign(
-      { id: savedRestaurant._id, email: savedRestaurant.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
     return NextResponse.json(
-      { 
-        token,
-        restaurant: {
+      {
+        success: true,
+        data: {
           id: savedRestaurant._id,
-          name: savedRestaurant.restaurantName,
-          email: savedRestaurant.email
-        }
+          restaurantName: savedRestaurant.restaurantName,
+          email: savedRestaurant.email,
+        },
       },
       { status: 201 }
     );
-
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { message: error.message || "Internal server error" },
+      { error: error.message || "Internal server error" },
       { status: 500 }
     );
   }
