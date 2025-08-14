@@ -2,7 +2,8 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { FiImage, FiDollarSign, FiFileText } from "react-icons/fi";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const AddFoodItems = ({ onClose }) => {
   const [formData, setFormData] = useState({
     foodname: "",
@@ -16,11 +17,51 @@ const AddFoodItems = ({ onClose }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formData);
-    onClose();
+    try {
+      const gettoekn = JSON.parse(localStorage.getItem("restaurantuser"));
+      const res_id = gettoekn.data._id;
+      const apicall = await fetch("http://localhost:3000/api/RestaurantsAdd", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          foodname: formData.foodname,
+          foodprice: formData.foodprice,
+          imagePath: formData.imagePath,
+          fooddescription: formData.fooddescription,
+          res_id: res_id,
+        }),
+      });
+      const response = await apicall.json();
+      if (response.message == "success") {
+        toast.success("Food Item Added Successfully", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      }
+
+      console.log("Form submitted:", formData);
+      onClose();
+    } catch (error) {
+      toast.error("Error Adding Food Item", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      console.log(error);
+    }
   };
 
   return (
@@ -122,6 +163,7 @@ const AddFoodItems = ({ onClose }) => {
           </motion.button>
         </div>
       </form>
+      <ToastContainer />
     </motion.div>
   );
 };
