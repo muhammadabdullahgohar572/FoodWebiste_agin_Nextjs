@@ -12,7 +12,7 @@ import {
   FaPhone,
 } from "react-icons/fa";
 import { theme } from "./theme";
-import { useParams, useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const Navbar = () => {
   const [details, setDetails] = useState(null);
@@ -23,23 +23,31 @@ const Navbar = () => {
 
   useEffect(() => {
     const checkAuth = () => {
-      const dataCheck = localStorage.getItem("restaurantuser");
-      
-      if (!dataCheck) {
+      try {
+        const dataCheck = localStorage.getItem("restaurantuser");
         
-        if (!pathname.startsWith('/retaurants')) {
-          router.push("/retaurants");
+        if (!dataCheck) {
+          if (!pathname.startsWith('/retaurants')) {
+            router.push("/retaurants");
+          }
+        } else {
+          try {
+            const userData = JSON.parse(dataCheck);
+            setDetails(userData);
+            // If user is logged in and on the base restaurants page, redirect to dashboard
+            if (pathname === '/retaurants') {
+              router.push("/retaurants/Dashboard");
+            }
+          } catch (parseError) {
+            console.error("Error parsing user data:", parseError);
+            localStorage.removeItem("restaurantuser");
+          }
         }
-      } else {
-        const userData = JSON.parse(dataCheck);
-        setDetails(userData);
-        // If user is logged in and on the base restaurants page, redirect to dashboard
-        if (pathname === '/retaurants') {
-          router.push("../retaurants/Dashbored");
-
-        }
+      } catch (error) {
+        console.error("Authentication check error:", error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     checkAuth();
@@ -48,7 +56,7 @@ const Navbar = () => {
   const logout = () => {
     localStorage.removeItem("restaurantuser");
     setDetails(null);
-    router.push("/restaurants");
+    router.push("/retaurants");
   };
 
   const navLinks = [

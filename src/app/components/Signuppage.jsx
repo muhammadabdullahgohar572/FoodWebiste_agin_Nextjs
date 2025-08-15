@@ -80,57 +80,35 @@ const SignupPage = () => {
     try {
       const loadingToastId = toast.loading("Creating your account...");
 
-      const response = await fetch("/api/restaurants", {
+      const response = await fetch("/api/retaurants", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          restaurantName: form.restaurantName,
-          email: form.email,
-          password: form.password,
-          city: form.city,
-          address: form.address,
-          contactNo: form.contactNo,
-        }),
+        body: JSON.stringify(form),
       });
 
       const result = await response.json();
-      
+
       toast.dismiss(loadingToastId);
 
       if (!response.ok) {
-        throw new Error(result.error || "Registration failed");
+        throw new Error(result.message || "Registration failed");
       }
 
-      // Store user data in localStorage
-      localStorage.setItem("restaurantuser", JSON.stringify(result.user));
-      
+      localStorage.setItem("restaurantuser", JSON.stringify(result));
+
       toast.success("🎉 Registration successful! Redirecting to dashboard...", {
         position: "top-center",
         autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
 
-      // Redirect to dashboard after successful signup
       setTimeout(() => {
-        router.push("/restaurants/dashboard");
+        router.push("/retaurants/Dashbored");
       }, 2000);
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error(error.message || "Registration failed. Please try again.", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      toast.error(error.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -150,27 +128,8 @@ const SignupPage = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{
-        background: theme.gradients.signup,
-        backgroundSize: "200% 200%",
-        animation: "gradient 8s ease infinite",
-      }}
-    >
-      {/* Toast Container */}
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-r from-blue-500 to-teal-400 bg-[length:200%_200%] animate-gradient">
+      <ToastContainer position="top-center" autoClose={5000} />
 
       <motion.div
         variants={container}
@@ -178,29 +137,24 @@ const SignupPage = () => {
         animate="show"
         className="bg-white p-8 rounded-xl shadow-xl w-full max-w-3xl"
       >
-        {/* Header */}
         <motion.div variants={item} className="text-center mb-8">
           <motion.h1
-            className="text-3xl font-bold mb-2"
-            style={{ color: theme.colors.secondary }}
+            className="text-3xl font-bold mb-2 text-teal-600"
             whileHover={{ scale: 1.02 }}
           >
-            Create Account
+            Create Restaurant Account
           </motion.h1>
           <p className="text-gray-500">Join our restaurant community</p>
         </motion.div>
 
-        {/* Form */}
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
+          {/* Form fields remain the same as before */}
           {/* Email */}
           <motion.div variants={item}>
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: theme.colors.text }}
-            >
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Email{" "}
               {errors.email && (
                 <span className="text-red-500 text-xs"> - {errors.email}</span>
@@ -224,10 +178,7 @@ const SignupPage = () => {
 
           {/* Password */}
           <motion.div variants={item}>
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: theme.colors.text }}
-            >
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Password{" "}
               {errors.password && (
                 <span className="text-red-500 text-xs">
@@ -254,10 +205,7 @@ const SignupPage = () => {
 
           {/* Confirm Password */}
           <motion.div variants={item}>
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: theme.colors.text }}
-            >
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Confirm Password{" "}
               {errors.confirmPassword && (
                 <span className="text-red-500 text-xs">
@@ -284,10 +232,7 @@ const SignupPage = () => {
 
           {/* Restaurant Name */}
           <motion.div variants={item}>
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: theme.colors.text }}
-            >
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Restaurant Name{" "}
               {errors.restaurantName && (
                 <span className="text-red-500 text-xs">
@@ -314,10 +259,7 @@ const SignupPage = () => {
 
           {/* City */}
           <motion.div variants={item}>
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: theme.colors.text }}
-            >
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               City{" "}
               {errors.city && (
                 <span className="text-red-500 text-xs"> - {errors.city}</span>
@@ -341,10 +283,7 @@ const SignupPage = () => {
 
           {/* Address */}
           <motion.div variants={item} className="md:col-span-2">
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: theme.colors.text }}
-            >
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Address{" "}
               {errors.address && (
                 <span className="text-red-500 text-xs">
@@ -371,10 +310,7 @@ const SignupPage = () => {
 
           {/* Contact Number */}
           <motion.div variants={item} className="md:col-span-2">
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: theme.colors.text }}
-            >
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Contact Number{" "}
               {errors.contactNo && (
                 <span className="text-red-500 text-xs">
@@ -403,22 +339,14 @@ const SignupPage = () => {
           <motion.button
             variants={item}
             type="submit"
-            className="md:col-span-2 w-full py-3 px-4 rounded-lg text-white font-medium flex items-center justify-center mt-4"
-            style={{ backgroundColor: theme.colors.secondary }}
-            whileHover={{
-              scale: 1.02,
-              boxShadow: `0 4px 12px rgba(16, 185, 129, 0.3)`,
-            }}
+            className="md:col-span-2 w-full py-3 px-4 rounded-lg text-white font-medium flex items-center justify-center mt-4 bg-teal-600 hover:bg-teal-700"
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             disabled={isLoading}
           >
             {isLoading ? (
               <span className="flex items-center">
-                <motion.span
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 1 }}
-                  className="inline-block h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"
-                />
+                <span className="animate-spin inline-block h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
                 Creating Account...
               </span>
             ) : (
@@ -429,38 +357,18 @@ const SignupPage = () => {
           </motion.button>
         </form>
 
-        {/* Footer Link */}
-        <motion.div
-          variants={item}
-          className="mt-6 text-center"
-          whileHover={{ scale: 1.02 }}
-        >
+        <motion.div variants={item} className="mt-6 text-center">
           <p className="text-sm text-gray-500">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-medium hover:underline"
-              style={{ color: theme.colors.secondary }}
+              className="font-medium text-teal-600 hover:underline"
             >
               Login
             </Link>
           </p>
         </motion.div>
       </motion.div>
-
-      <style jsx global>{`
-        @keyframes gradient {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-      `}</style>
     </div>
   );
 };
