@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export const POST = async (req, res) => {
   try {
-    await  ConnectionDb()
+    await ConnectionDb();
     const { foodname, foodprice, imagePath, fooddescription, res_id } =
       await req.json();
 
@@ -32,7 +32,7 @@ export const POST = async (req, res) => {
   } catch (error) {
     return NextResponse.json({
       message: "error",
-      error:error.message,
+      error: error.message,
     });
   }
 };
