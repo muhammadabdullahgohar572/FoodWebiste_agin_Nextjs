@@ -36,7 +36,7 @@ const Navbar = () => {
             setDetails(userData);
             // If user is logged in and on the base restaurants page, redirect to dashboard
             if (pathname === '/retaurants') {
-              router.push("/retaurants/Dashboard");
+              router.push("../retaurants/Dashbored");
             }
           } catch (parseError) {
             console.error("Error parsing user data:", parseError);
@@ -61,9 +61,9 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", href: "/", icon: <FaHome /> },
-    { name: "Restaurants", href: "/restaurants", icon: <FaUtensils /> },
-    { name: "About", href: "/about", icon: <FaInfoCircle /> },
-    { name: "Contact", href: "/contact", icon: <FaPhone /> },
+    { name: "Restaurants", href: "", icon: <FaUtensils /> },
+    { name: "About", href: "../About", icon: <FaInfoCircle /> },
+    { name: "Contact", href: "../Contact", icon: <FaPhone /> },
   ];
 
   const mobileMenuVariants = {
