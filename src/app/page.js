@@ -1,18 +1,38 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CustomerHeader from "./components/CoutomerHeader";
 import CustomerFooter from "./components/CoutomerFooter";
 
 export default function Home() {
   const [restaurant, setRestaurant] = useState("");
   const [foodItem, setFoodItem] = useState("");
+  const [restaurantsList, setRestaurantsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // API se restaurants fetch karna
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/Coutomer/Location", { cache: "no-store" });
+        const data = await res.json();
+        setRestaurantsList(data.result || []);
+      } catch (err) {
+        console.error("Error fetching restaurants:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRestaurants();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
     console.log("Searching for:", { restaurant, foodItem });
     // Yahan API call ya filter logic aayega
   };
+
   return (
     <>
       <CustomerHeader />
@@ -45,18 +65,20 @@ export default function Home() {
             className="bg-white rounded-lg shadow-lg flex flex-col md:flex-row items-center p-4 gap-4 md:gap-2"
           >
             {/* Restaurant Dropdown */}
-            {/* Restaurant Dropdown */}
             <select
               value={restaurant}
               onChange={(e) => setRestaurant(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg w-full md:w-48 focus:ring-2 focus:ring-emerald-500 text-gray-700"
             >
               <option value="" disabled>
-                Select Restaurant
+                {loading ? "Loading restaurants..." : "Select Restaurant"}
               </option>
-              <option value="Pizza Hut">Pizza Hut</option>
-              <option value="McDonald's">McDonald's</option>
-              <option value="KFC">KFC</option>
+              {!loading &&
+                restaurantsList.map((rest, index) => (
+                  <option key={index} value={rest}>
+                    {rest}
+                  </option>
+                ))}
             </select>
 
             {/* Food Item Input */}
