@@ -399,7 +399,7 @@ export default function Home() {
                       </svg>
                       {restaurant.contactNo}
                     </p>
-                    <Link href={`./exploer/${restaurant.restaurantName.replace(/\s+/g, '-').toLowerCase()}/${restaurant._id}`} passHref>
+                    <Link href={`./exploer/${restaurant.restaurantName.replace(/\s+/g, '-').toLowerCase()}/${restaurant._id}`}>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}

@@ -8,6 +8,12 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "www.nhlbi.nih.gov",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };
