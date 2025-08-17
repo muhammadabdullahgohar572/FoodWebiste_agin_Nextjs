@@ -38,12 +38,7 @@ export default function Home() {
       setRestaurantsList(uniqueRestaurants);
       setCitiesList(uniqueCities);
       
-      // Sample food items (replace with your actual data)
-      const sampleFoodItems = [
-        "Biryani", "Burger", "Pizza", "Pasta", 
-        "Salad", "Sandwich", "Soup", "Steak"
-      ];
-      setFoodItemsList(sampleFoodItems);
+      
     } catch (err) {
       console.error("Error fetching restaurants:", err);
     } finally {

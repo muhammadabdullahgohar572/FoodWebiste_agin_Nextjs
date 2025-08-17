@@ -8,15 +8,15 @@ export const GET = async (req, { params }) => {
     await ConnectionDb();
     const id = params.id;
     
-    // Find restaurant by its _id
+
     const restaurant = await Restaurant.findById(id);
     
-    // Find food items that belong to this restaurant (using res_id)
+  
     const foodItems = await FoodModels.find({ res_id: id });
 
     return NextResponse.json({
       message: "success",
-      deatils: restaurant ? [restaurant] : [], // Return as array to match your frontend expectation
+      deatils: restaurant ? [restaurant] : [], 
       food: foodItems,
     });
   } catch (error) {

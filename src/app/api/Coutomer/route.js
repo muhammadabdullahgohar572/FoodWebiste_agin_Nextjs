@@ -6,7 +6,7 @@ export const GET = async (req, res) => {
   try {
     await ConnectionDb();
     let queryParams = req.nextUrl.searchParams;
-// http://localhost:3000/api/Coutomer?location=karachi
+
     let filter = {};
     if (queryParams.get("location")) {
      let city = queryParams.get("location");

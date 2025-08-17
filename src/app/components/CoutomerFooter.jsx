@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FaUtensils, FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaMapMarkerAlt, FaPhone, FaEnvelope } from "react-icons/fa";
 
 const CustomerFooter = () => {
+
   const themeColor = "#009966";
 
   return (

@@ -11,15 +11,18 @@ const RestaurantDetails = ({ params }) => {
   const [restaurant, setRestaurant] = useState(null);
   const [foodItems, setFoodItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
+    // Load cart from localStorage
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(savedCart);
+
     const fetchData = async () => {
       try {
         setLoading(true);
         const response = await fetch(`/api/Coutomer/${id}`);
         const data = await response.json();
-        
-        console.log("API Response:", data); // Debugging
         
         if (data.deatils && data.deatils.length > 0) {
           setRestaurant(data.deatils[0]);
@@ -36,6 +39,72 @@ const RestaurantDetails = ({ params }) => {
 
     fetchData();
   }, [id]);
+
+  const isItemInCart = (itemId) => {
+    return cart.some(item => item._id === itemId);
+  };
+
+  const addToCart = (item) => {
+    let currentCart = JSON.parse(localStorage.getItem("cart")) || [];
+    
+    // Check if the item is from the same restaurant
+    if (currentCart.length > 0 && currentCart[0].res_id !== restaurant._id) {
+      const confirmChange = window.confirm(
+        "Your cart contains items from another restaurant. Adding this item will clear your current cart. Do you want to proceed?"
+      );
+      
+      if (!confirmChange) return;
+      
+      currentCart = [];
+    }
+    
+    const existingItemIndex = currentCart.findIndex(cartItem => cartItem._id === item._id);
+    
+    if (existingItemIndex >= 0) {
+      currentCart[existingItemIndex].quantity += 1;
+    } else {
+      currentCart.push({
+        ...item,
+        quantity: 1,
+        res_id: restaurant._id,
+        restaurantName: restaurant.restaurantName,
+        restaurantImage: restaurant.imagePath
+      });
+    }
+    
+    localStorage.setItem("cart", JSON.stringify(currentCart));
+    setCart(currentCart);
+    window.dispatchEvent(new Event('storage'));
+    
+    showToast(`${item.foodname} added to cart!`, 'green');
+  };
+
+  const removeFromCart = (itemId) => {
+    let currentCart = JSON.parse(localStorage.getItem("cart")) || [];
+    const itemToRemove = currentCart.find(item => item._id === itemId);
+    
+    currentCart = currentCart.filter(item => item._id !== itemId);
+    
+    localStorage.setItem("cart", JSON.stringify(currentCart));
+    setCart(currentCart);
+    window.dispatchEvent(new Event('storage'));
+    
+    if (itemToRemove) {
+      showToast(`${itemToRemove.foodname} removed from cart!`, 'red');
+    }
+  };
+
+  const showToast = (message, color) => {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-4 right-4 bg-${color}-500 text-white px-4 py-2 rounded-lg shadow-lg`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+      setTimeout(() => toast.remove(), 300);
+    }, 2000);
+  };
 
   if (loading) {
     return (
@@ -107,6 +176,14 @@ const RestaurantDetails = ({ params }) => {
           className="relative h-64 md:h-96 bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center overflow-hidden"
         >
           <div className="absolute inset-0 bg-black/30"></div>
+          {restaurant.imagePath && (
+            <Image
+              src={restaurant.imagePath}
+              alt={restaurant.restaurantName}
+              fill
+              className="object-cover"
+            />
+          )}
           <motion.div 
             initial={{ y: -20 }}
             animate={{ y: 0 }}
@@ -206,7 +283,7 @@ const RestaurantDetails = ({ params }) => {
                 animate="show"
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
               >
-                {foodItems.map((item, index) => (
+                {foodItems.map((item) => (
                   <motion.div 
                     key={item._id} 
                     variants={item}
@@ -236,12 +313,27 @@ const RestaurantDetails = ({ params }) => {
                         {item.fooddescription || "Delicious food item prepared with care by our chefs."}
                       </p>
                       <div className="flex gap-3">
-                        <button className="flex-1 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all duration-300 flex items-center justify-center gap-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
-                          </svg>
-                          Add to Cart
-                        </button>
+                        {isItemInCart(item._id) ? (
+                          <button 
+                            onClick={() => removeFromCart(item._id)}
+                            className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300 flex items-center justify-center gap-2"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Remove from Cart
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => addToCart(item)}
+                            className="flex-1 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all duration-300 flex items-center justify-center gap-2"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                            </svg>
+                            Add to Cart
+                          </button>
+                        )}
                         <button className="px-4 py-2 border border-emerald-500 text-emerald-500 rounded-lg hover:bg-emerald-50 transition-colors duration-300">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
