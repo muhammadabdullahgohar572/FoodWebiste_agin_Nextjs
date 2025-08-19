@@ -84,7 +84,6 @@ const CustomerHeader = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("cart"); // Clear cart on logout
     setUserDetails(null);
     setCartItems([]);
     router.push("/Login");
@@ -126,12 +125,12 @@ const CustomerHeader = () => {
           <Link
             href="/restaurants"
             className={`font-medium hover:text-green-600 transition-colors ${
-              pathname.startsWith("/restaurants")
+              pathname.startsWith("/retaurants")
                 ? "text-green-700 font-semibold"
                 : ""
             }`}
             style={{
-              color: pathname.startsWith("/restaurants")
+              color: pathname.startsWith("/retaurants")
                 ? themeColor
                 : "inherit",
             }}
@@ -139,9 +138,9 @@ const CustomerHeader = () => {
             Restaurants
           </Link>
           <Link
-            href="/cart"
+            href="/Cart"
             className="flex items-center font-medium hover:text-green-600 transition-colors relative"
-            style={{ color: pathname === "/cart" ? themeColor : "inherit" }}
+            style={{ color: pathname === "/Cart" ? themeColor : "inherit" }}
           >
             <FaShoppingCart className="mr-1" />
             Cart

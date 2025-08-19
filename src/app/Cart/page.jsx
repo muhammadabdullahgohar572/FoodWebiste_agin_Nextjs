@@ -170,7 +170,7 @@ const Cart = () => {
                           Clear Cart
                         </button>
                         <Link
-                          href="/checkout"
+                          href="../oder"
                           className="px-6 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-center"
                         >
                           Proceed to Checkout

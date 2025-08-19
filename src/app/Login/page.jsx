@@ -77,7 +77,12 @@ const LoginPage = () => {
       const userData = {
         id: data.user._id,
         name: data.user.name,
-        email: data.user.email
+        email: data.user.email,
+        city: data.user.city,
+        address: data.user.address,
+        contactNumber: data.user.contactNumber,
+
+
       };
       localStorage.setItem('user', JSON.stringify(userData));
 
