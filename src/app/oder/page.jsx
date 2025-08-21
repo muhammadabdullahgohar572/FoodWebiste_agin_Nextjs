@@ -75,57 +75,55 @@ const Order = () => {
   };
 
   const placeOrder = async () => {
-  if (!userDetails || cartItems.length === 0) return;
+    if (!userDetails || cartItems.length === 0) return;
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const cartData = JSON.parse(localStorage.getItem("cart"));
-    
-    // Fix: Use _id instead of id
-    const orderData = {
-      res_id: cartData[0].res_id, // Also fixed: use restaurantId instead of res_id
-      User_Id: user.id,
-      FoodItems: cartData.map((item) => item._id).toString(), // Changed from item.id to item._id
-      amount: (calculateTotal() + 50).toString(),
-      status: "pending",
-      DeliveryBoye_Id: "68a12eb89054383b07ecb599",
-    };
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const cartData = JSON.parse(localStorage.getItem("cart"));
 
-    console.log("Sending order data:", orderData);
+      const orderData = {
+        res_id: cartData[0].res_id,
+        User_Id: user.id,
+        FoodItems: cartData.map((item) => item._id).toString(),
+        amount: (calculateTotal() + 50).toString(),
+        status: "pending",
+        DeliveryBoye_Id: "68a12eb89054383b07ecb599",
+      };
 
-    // Fixed the endpoint URL from "/api/oder" to "/api/order"
-    const response = await fetch("/api/oder", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(orderData),
-    });
+      console.log("Sending order data:", orderData);
 
-    const result = await response.json();
-    console.log("API response:", result);
+      const response = await fetch("/api/oder", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
 
-    if (result.success) {
-      // Clear cart on successful order
-      clearCart();
+      const result = await response.json();
+      console.log("API response:", result);
 
-      // Show success message
-      alert("Order placed successfully!");
+      if (result.success) {
+        clearCart();
 
-      // Redirect to home or orders page
-      router.push("/");
-    } else {
-      alert("Failed to place order: " + result.message);
+        alert("Order placed successfully!");
+        cartItems.map((item) => {
+          item.quantity = 0;
+        });
+        setCartItems(cartItems);
+        router.push("/my-profile");
+      } else {
+        alert("Failed to place order: " + result.message);
+      }
+    } catch (error) {
+      console.error("Order placement error:", error);
+      alert("An error occurred while placing your order. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Order placement error:", error);
-    alert("An error occurred while placing your order. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <>
