@@ -81,15 +81,24 @@ const Order = () => {
 
     try {
       const user = JSON.parse(localStorage.getItem("user"));
+      const city = JSON.parse(localStorage.getItem("user")).city;
+
       const cartData = JSON.parse(localStorage.getItem("cart"));
 
+      const respnse = await fetch(`/api/DeliveryPartner/${city}`);
+      const data = await respnse.json();
+      const datamap = data.data.map((item) => item._id);
+      const randomIndex = datamap[Math.floor(Math.random() * datamap.length)]
+      if (!randomIndex) {
+        alert("Delivery boye not avalable");
+      }
       const orderData = {
         res_id: cartData[0].res_id,
         User_Id: user.id,
         FoodItems: cartData.map((item) => item._id).toString(),
         amount: (calculateTotal() + 50).toString(),
         status: "pending",
-        DeliveryBoye_Id: "68a12eb89054383b07ecb599",
+        DeliveryBoye_Id: randomIndex,
       };
 
       console.log("Sending order data:", orderData);

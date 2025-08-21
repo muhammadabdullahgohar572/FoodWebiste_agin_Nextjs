@@ -50,7 +50,8 @@ export const POST = async (req) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new user
-    const newUser = new UserModel({
+    const newUser = new DeliveryPartnerModel({
+
       name,
       email,
       password: hashedPassword,
@@ -70,26 +71,36 @@ export const POST = async (req) => {
       city: savedUser.city,
       address: savedUser.address,
       contactNumber: savedUser.contactNumber,
-      createdAt: savedUser.createdAt
+      createdAt: savedUser.createdAt,
     };
 
     return NextResponse.json(
-      { 
-        success: true, 
-        message: "Registration successful", 
-        data: responseData 
+      {
+        success: true,
+        message: "Registration successful",
+        data: responseData,
       },
       { status: 201 }
     );
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: "Internal server error",
-        details: process.env.NODE_ENV === 'development' ? error.message : null
+        details: process.env.NODE_ENV === "development" ? error.message : null,
       },
       { status: 500 }
     );
   }
 };
+
+
+
+
+
+
+
+
+
+
